@@ -95,12 +95,20 @@ class App(tk.Tk):
 
         self.show("WelcomeFrame")
 
-    # ================== NAWIGACJA ==================
+        # ====== IKONA APLIKACJI ======
+        try:
+            self.icon_image = tk.PhotoImage(file=ICON)
+            self.iconphoto(True, self.icon_image)
+        except Exception as e:
+            print(f"Nie udało się wczytać ikony: {e}")
+        
 
+    # ================== ZARZĄDZANIE FRAME'AMI ==================
     def show(self, frame_name):
         frame = self.frames[frame_name]
         frame.tkraise()
         self.current_frame_name = frame_name
+        print_info(frame_name)
         if hasattr(frame, "on_show"):
             frame.on_show()
             print(f"Funckja on_show() w {frame_name} została wywołana.")
@@ -108,7 +116,6 @@ class App(tk.Tk):
 
 
     # ================== AKCJE MENU ==================
-
     def advanced_action(self):
         current_frame = self.frames.get(self.current_frame_name)
         print(f"Aktualny frame: {self.current_frame_name}")
@@ -139,6 +146,5 @@ class App(tk.Tk):
 
 
 # ================== START ==================
-
 if __name__ == "__main__":
     App().mainloop()
