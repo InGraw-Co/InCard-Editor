@@ -2,6 +2,7 @@
 import json, os, locale, sys
 from tkinter import messagebox
 from paths import *
+import shutil
 import tkinter as tk
 
 
@@ -51,7 +52,8 @@ def save_settings(data):
 
 # ================== JĘZYK APLIKACJI ==================
 def detect_system_lang():
-    loc, _ = locale.getlocale()
+    loc, _ = locale.getdefaultlocale()
+    print(loc.split("_")[0])
     return (loc.split("_")[0] if loc else "en")
 
 def get_available_languages():
@@ -64,15 +66,36 @@ def load_language(code):
 
 
 # ================== KONFIGURACJA KART ==================
-def load_config(L):
-    if not os.path.exists(CONFIG_FILE):
+def load_config(L, lang):
+    if not os.path.exists(CONFIG_DIR):
         messagebox.showerror(L["error.config.title"], L["error.config.missing"])
         sys.exit()
 
-    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+    lang_config_file = os.path.join(CONFIG_DIR, f"config_{lang}.json")
+    default_config_file = os.path.join(CONFIG_DIR, "config.json")
+
+    if os.path.exists(lang_config_file):
+        config_file = lang_config_file
+    else:
+        config_file = default_config_file
+
+    with open(config_file, "r", encoding="utf-8") as f:
         cfg = json.load(f)
 
-    return cfg["rarity"], cfg["types"], cfg["properties"]
+    print (f"Loaded config: {config_file}")
+    save_config(cfg.get("rarity", []), cfg.get("types", []), cfg.get("properties", []))
+    return cfg.get("rarity", []), cfg.get("types", []), cfg.get("properties", [])
+
+
+def save_config(rarity, types, properties):
+    cfg = {
+        "rarity": rarity,
+        "types": types,
+        "properties": properties
+    }
+    with open(MAIN_CONFIG, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+
 
 
 # ================== WIDŻETY ==================
@@ -170,8 +193,63 @@ def lerp_color(c1, c2, t):
     ))
 
 
+# ================== RESET DANYCH APLIKACJI ==================
+def reset_all_data():
+    if not messagebox.askyesno(L["reset.data"], L["reset.data.confirm"]):
+        return
+
+    paths = [SETTINGS_FILE, CACHE_DIR, MAIN_CONFIG]
+    trash = os.path.join(os.path.dirname(SETTINGS_FILE), "trash")
+    os.makedirs(trash, exist_ok=True)
+
+    try:
+        for path in paths:
+            if os.path.exists(path):
+                dest = os.path.join(trash, os.path.basename(path))
+                if os.path.isfile(path):
+                    shutil.copy2(path, dest)
+                elif os.path.isdir(path):
+                    shutil.copytree(path, dest)
+
+        for path in paths:
+            if os.path.exists(path):
+                if os.path.isfile(path):
+                    os.remove(path)
+                elif os.path.isdir(path):
+                    shutil.rmtree(path)
+
+    except Exception as e:
+        for item in os.listdir(trash):
+            src = os.path.join(trash, item)
+            dest = os.path.join(os.path.dirname(SETTINGS_FILE), item)
+            if os.path.isfile(src):
+                shutil.copy2(src, dest)
+            elif os.path.isdir(src):
+                shutil.copytree(src, dest)
+        messagebox.showerror(L["reset.data"], L["error.reset_data"].format(error=str(e)))
+        shutil.rmtree(trash, ignore_errors=True)
+        return
+
+    shutil.rmtree(trash, ignore_errors=True)
+    messagebox.showinfo(L["reset.data"], L["reset.data.success"])
+    sys.exit()
+
+
+#================== INFORMACJE ==================
+def print_info(frame_name):
+    print("\n")
+    print(f"====================INFO:===================")
+    print(f"Language: {settings['lang']}")
+    print(f"Theme: {settings['theme']}")
+    print(f"Total cards in session: {load_meta()}")
+    print(f"Frame name: {frame_name}")
+    print(f"=============================================")
+    print("\n")
+
+
 # ================== KONFIGURACJA ==================
 
+sys.dont_write_bytecode = True
 settings = load_settings()
 lang = settings.get("lang") or detect_system_lang()
 settings["lang"] = lang
@@ -179,5 +257,9 @@ theme = settings.get("theme") or "light"
 settings["theme"] = theme
 save_settings(settings)
 
+settings = load_settings()
+lang = settings["lang"]
+theme = settings["theme"]
+
 L = load_language(lang)
-RARITY, TYPES, PROPERTIES = load_config(L)
+RARITY, TYPES, PROPERTIES = load_config(L, lang)
