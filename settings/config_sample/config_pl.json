@@ -1,0 +1,26 @@
+{
+    "rarity": [
+        "pospolite",
+        "niepospolite",
+        "rzadkie",
+        "epickie",
+        "legendarne"
+    ],
+    "types": [
+        "bohater",
+        "potwór",
+        "obcy",
+        "robot",
+        "mutant"
+    ],
+    "properties": [
+        "siła",
+        "zwinność",
+        "inteligencja",
+        "wytrzymałość",
+        "charyzma",
+        "natura",
+        "technologia",
+        "magia"
+    ]
+}
