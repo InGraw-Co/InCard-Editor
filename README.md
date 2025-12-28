@@ -42,7 +42,7 @@ I plan to support **20 languages** — currently I use language files in `settin
    - Pillow (`pip install pillow`)
    - Tkinter (usually included with Python)
    - If you miss a dependency (I sometimes add new ones), install it with `pip install <package>`
-   - Can you install requirements library from file `install.bat` or `install.sh`
+   - You can install requirements library from file `install.bat` or `install.sh`
 2. Run:
    - Windows: double-click `start.bat` or run `python main.py`
    - Other systems (Linux, macOS): `./start.sh` or run `python3 main.py`
