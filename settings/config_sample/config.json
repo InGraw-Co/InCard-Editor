@@ -1,0 +1,26 @@
+{
+  "rarity": [
+    "common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legendary"
+  ],
+  "types": [
+    "hero",
+    "monster",
+    "alien",
+    "robot",
+    "mutant"
+  ],
+  "properties": [
+    "strength",
+    "agility",
+    "intelligence",
+    "endurance",
+    "charisma",
+    "nature",
+    "technology",
+    "magic"
+  ]
+}
