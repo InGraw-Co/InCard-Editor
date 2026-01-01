@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Move to script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Install into .venv if present, otherwise use system Python
 if [ -f ".venv/bin/activate" ]; then
   echo "Activating .venv and installing requirements..."
-  # shellcheck disable=SC1091
   . .venv/bin/activate
   pip install --upgrade pip
   pip install -r requirements.txt
@@ -25,8 +22,6 @@ else
   "$PY" -m pip install --upgrade pip
   "$PY" -m pip install -r requirements.txt
 fi
-
-# Check for tkinter availability
 if ! python -c "import tkinter" >/dev/null 2>&1; then
   cat <<'MSG'
 
